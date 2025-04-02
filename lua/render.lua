@@ -14,7 +14,7 @@
 --if an expression in the lambda term has a field `color`, it and its children, up until another expression with a defined `color`, will be rendered with its value
 --Do note that, if used with my interpreter, the color fields will not be preserved through beta-reduction, and must be set again afterwards
 
-L = L or 'L'
+L = L or 'λ'
 
 function computeSize(l)
 	if type(l) == "table" then
@@ -28,6 +28,10 @@ function computeSize(l)
 	else
 		return 4, 1
 	end
+end
+
+function math.lerp(a, b, t)
+	return a + (b - a) * t
 end
 
 function render(l, x, y, scale)

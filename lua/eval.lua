@@ -12,7 +12,7 @@
 --  the passed lambda term unaltered, false
 --		if no beta reduction occurred
 
-L = L or 'L'
+L = L or 'λ'
 
 local function overload(fAbs, fApp, fVar, fAll)
 	return function (l, ...)
@@ -33,9 +33,9 @@ local incFree
 incFree = overload(
 function (l, v, d)
 	d = d or 0
-	return {L, incFree(l[2], v, d + 1)}
+	return {L, incFree(l[2], v, d + 1), props = l.props}
 end, function (l, v, d)
-	return {incFree(l[1], v, d), incFree(l[2], v, d)}
+	return {incFree(l[1], v, d), incFree(l[2], v, d), props = l.props}
 end, function (l, v, d)
 	if l > (d or 0) then
 		return l + v - 1
@@ -48,13 +48,12 @@ local subst
 subst = overload(
 function (l, v, d)
 	if d then
-		return {L, subst(l[2], v, d + 1)}
+		return {L, subst(l[2], v, d + 1), props = l.props}
 	else
 		return subst(l[2], v, 1)
 	end
 end, function (l, v, d)
-	return {subst(l[1], v, d)
-	,subst(l[2], v, d)}
+	return {subst(l[1], v, d) ,subst(l[2], v, d), props = l.props}
 end, function (l, v, d)
 	if l == d then
 		return incFree(v, d)
@@ -75,12 +74,22 @@ end, function (l)
 		return subst(l[1], l[2]), true
 	end
 	local v, s = reduce(l[1])
-	if s then return {v, l[2]}, true end
+	if s then return {v, l[2], props = l.props}, true end
 	v, s = reduce(l[2])
-	if s then return {l[1], v}, true end
+	if s then return {l[1], v, props = l.props}, true end
 	return l, false
 end, function (l)
 	return l, false
+end
+)
+
+count = overload(
+function (l)
+	return count(l[2]) + 1
+end, function (l)
+	return count(l[1]) + count(l[2]) + 0
+end, function (l)
+	return 0
 end
 )
 

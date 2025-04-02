@@ -1,8 +1,6 @@
 ---@diagnostic disable: unicode-name
 
-L = L or function (l)
-	return {L,l}
-end
+L = L or "λ"
 
 function hsvANSI(h, s, v)
 	if h ~= h then h = 0 end
@@ -21,19 +19,19 @@ function intPart(x)
 	return ret
 end
 
-function lambdaToString(l, d)
+function lambdaToString(l, d, color)
 	d = d or 0
 	if d > 20 then return "!!!" end
 	if type(l) == "table" then
 		if l[1] == L then
-			local col = hsvANSI(intPart(d), 0.8, 0.9)
-			return ('%sL%s.%s%s'):format(col, string.char((d) % 26 + 97), lambdaToString(l[2], d+1), col)
+			local col = color and hsvANSI(intPart(d), 0.8, 0.9) or ""
+			return ('%s\\%s.%s%s'):format(col, string.char((d) % 26 + 97), lambdaToString(l[2], d+1, color), col)
 		end
-		local col = "[0m"
-		return ('%s(%s%s %s%s)'):format(col, lambdaToString(l[1], d), col, lambdaToString(l[2], d), col)
+		local col = color and "[0m" or ""
+		return ('%s(%s%s %s%s)'):format(col, lambdaToString(l[1], d, color), col, lambdaToString(l[2], d, color), col)
 	end
 	if not l then return "[31mNIL" end
-	local col = hsvANSI(intPart(d-l), 0.8, 0.9)
+	local col = color and hsvANSI(intPart(d-l), 0.8, 0.9) or ""
 	if d < l then
 		col = ("[38;2;%d;%d;%dm"):format(255/(l-d), 255/(l-d), 255/(l-d))
 	end
